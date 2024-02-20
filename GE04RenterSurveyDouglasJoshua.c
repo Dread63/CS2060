@@ -5,6 +5,12 @@
 #define MAX_RATING 5
 #define MIN_RATING 1
 
+void printCategories(const char *categories[], size_t totalCategories);
+void getRatings (int rideshareSurvey[NUM_RENTERS][SURVEY_CATEGORIES], size_t riderCount);
+void printSurveyRatings (int rideshareSurvey[NUM_RENTERS][SURVEY_CATEGORIES], int riderCount);
+void calculateCategoryAverages(int rideshareSurvey[NUM_RENTERS][SURVEY_CATEGORIES], double categoryAverages[SURVEY_CATEGORIES], int riderCount);
+void printCategoryData(double categoryAverages[SURVEY_CATEGORIES]);
+
 int main(void) {
 
     int rideshareSurvey[NUM_RENTERS][SURVEY_CATEGORIES];
