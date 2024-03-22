@@ -96,8 +96,8 @@ double getValidDouble(int min, int max, int sentinel) {
 	}
 
 	return validDouble;
-}
-
+} 
+ 
 // Functiont to calculate the riders estimated travel time
 int estimatedTimeOfArrival(double miles) {
 
