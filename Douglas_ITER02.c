@@ -4,14 +4,13 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <float.h>
+#include <string.h>
 
 #define INVALID_INPUT 1;
 
 bool scanDouble(const char *buffer, double *output);
 bool loginAdmin (const char *correctID, const char *correctPassword, unsigned int maxAttempts);
 void fgetsRemoveNewLine (char *str, unsigned int maxSize);
-size_t strlen(const char* str);
-int strcmp(char* first_str, char* second_str);
 
 int main(void) {
 
