@@ -10,6 +10,8 @@
 bool scanDouble(const char *buffer, double *output);
 bool loginAdmin (const char *correctID, const char *correctPassword, unsigned int maxAttempts);
 void fgetsRemoveNewLine (char *str, unsigned int maxSize);
+size_t strlen(const char* str);
+int strcmp(first_str, second_str );
 
 int main(void) {
 
