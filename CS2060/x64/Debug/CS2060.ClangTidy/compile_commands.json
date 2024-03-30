@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "C:\\Dev\\CS2060\\CS2060",
+    "command": "\"C:\\Windows\\system32\\CL.exe\" \/c \/nologo \/W3 \/WX- \/diagnostics:column \/Od \/D _CRT_SECURE_NO_WARNINGS \/D _UNICODE \/D UNICODE \/EHsc \/RTC1 \/MDd \/GS \/fp:precise \/permissive- \/Fo\"x64\\Debug\\\\\" \/Gd \/TC --target=amd64-pc-windows-msvc;  \"C:\\Dev\\CS2060\\Douglas_ITER02.c\"",
+    "file": "C:\\Dev\\CS2060\\Douglas_ITER02.c"
+  }
+]

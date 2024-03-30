@@ -6,10 +6,11 @@
 #include <float.h>
 #include <string.h>
 
-#define INVALID_INPUT 1
 #define STRING_LENGTH 80
 #define SURVEY_RIDER_ROWS 5
 #define SURVEY_CATEGORIES 3
+#define MIN_DOLLARS 0.1
+#define MAX_DOLLARS 50.0
 
 // LOGIN AND SENTINEL VALUES
 #define CORRECT_ID "id1"
@@ -19,19 +20,30 @@
 
 const char *surveyCategories[SURVEY_CATEGORIES] = {"Safety", "Cleanliness", "Comfort"};
 
+struct RideShare;
+
 bool scanDouble(const char *buffer, double *output);
 bool loginAdmin (const char *correctID, const char *correctPassword, unsigned int maxAttempts);
 void fgetsRemoveNewLine (char *str, unsigned int maxSize);
-void setupRideShare(struct RideShare *rideSharePtr, unsigned int min, unsigned int max);
+void setupRideShare(struct RideShare *rideSharePtr, const double min, const double max);
+
+struct RideShare {
+
+    double baseFare;
+    double costPerMinute;
+    double costPerMile;
+    double minFlatRate;
+    double totalMiles;
+    char companyName[STRING_LENGTH];
+};
 
 int main(void) {
 
     struct RideShare rideShare;
 
-    setupRideShare(&rideShare, 1, 100);
+    setupRideShare(&rideShare, MIN_DOLLARS, MAX_DOLLARS);
 
-    /*
-    bool validLogin = loginAdmin(&CORRECT_ID, &CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS);
+    bool validLogin = loginAdmin(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS);
 
     if (validLogin == true) {
         puts("Successful Login");
@@ -40,20 +52,7 @@ int main(void) {
     if (validLogin == false) {
         puts("Failed Login");
     }
-    */
 }
-
-struct RideShare {
-
-    unsigned int minMiles;
-    unsigned int maxMiles;
-    double baseFare;
-    double costPerMinute;
-	double costPerMile;
-	double minFlatRate;
-    double totalMiles;
-    char companyName[STRING_LENGTH];
-};
 
 bool scanDouble (const char *buffer, double *output) {
 
@@ -123,7 +122,7 @@ void fgetsRemoveNewLine (char *str, unsigned int maxSize) {
 
     fgets(str, maxSize, stdin);
 
-    int strLength = strlen(str);
+    size_t strLength = strlen(str);
 
     if (strLength > 0 && str[strLength - 1] == '\n') {
 
@@ -131,23 +130,47 @@ void fgetsRemoveNewLine (char *str, unsigned int maxSize) {
     }
 }
 
-void setupRideShare(struct RideShare *rideSharePtr, unsigned int min, unsigned int max) {
+double getValidDouble(const double min, const double max) {
+
+    char buffer[STRING_LENGTH];
+
+    double tempValue;
+
+    fgetsRemoveNewLine(buffer, sizeof(buffer));
+
+    while (!scanDouble(buffer, &tempValue));
+
+    while (tempValue < min || tempValue > max) {
+        puts("Value is out of range please try again");
+
+        fgetsRemoveNewLine(buffer, sizeof(buffer));
+
+        while (!scanDouble(buffer, &tempValue));
+    }
+
+    return tempValue;
+}
+
+void setupRideShare(struct RideShare *rideSharePtr, const double min, const double max) {
 
     char buffer[STRING_LENGTH];
 
     puts("Input base fare");
-    rideSharePtr -> baseFare = scanDouble(min, max);
+    rideSharePtr->baseFare = getValidDouble(min, max);
+    //fgetsRemoveNewLine(buffer, sizeof(buffer));
+    //while (!scanDouble(buffer, &rideSharePtr->baseFare));
 
-    puts("Input cost per minte");
-    rideSharePtr -> costPerMinute = scanDouble(min, max);
+    puts("Input cost per minute");
+    //fgetsRemoveNewLine(buffer, sizeof(buffer));
+    //while (!scanDouble(buffer, &rideSharePtr->costPerMinute));
 
     puts("Input cost per mile");
-    rideSharePtr -> costPerMile = scanDouble(min, max);
-
+    //fgetsRemoveNewLine(buffer, sizeof(buffer));
+    //while (!scanDouble(buffer, &rideSharePtr->costPerMile));
+    
     puts("Input minimum flat rate");
-    rideSharePtr -> minFlatRate = scanDouble(min, max);
+    //fgetsRemoveNewLine(buffer, sizeof(buffer));
+    //while (!scanDouble(buffer, &rideSharePtr->minFlatRate));
 
-    rideSharePtr -> totalMiles = 0.0;
-
-    fgetsRemoveNewLine(rideSharePtr -> companyName, max);
+    rideSharePtr->totalMiles = 0.0;
 }
