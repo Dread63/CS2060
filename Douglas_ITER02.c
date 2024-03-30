@@ -6,26 +6,32 @@
 #include <float.h>
 #include <string.h>
 
-#define INVALID_INPUT 1;
+#define INVALID_INPUT 1
+#define STRING_LENGTH 80
+#define SURVEY_RIDER_ROWS 5
+#define SURVEY_CATEGORIES 3
+
+// LOGIN AND SENTINEL VALUES
+#define CORRECT_ID "id1"
+#define CORRECT_PASSCODE "ABCD"
+#define LOGIN_MAX_ATTEMPTS 3
+#define SENTINAL_NEG1 -1
+
+const char *surveyCategories[SURVEY_CATEGORIES] = {"Safety", "Cleanliness", "Comfort"};
 
 bool scanDouble(const char *buffer, double *output);
 bool loginAdmin (const char *correctID, const char *correctPassword, unsigned int maxAttempts);
 void fgetsRemoveNewLine (char *str, unsigned int maxSize);
+void setupRideShare(struct RideShare *rideSharePtr, unsigned int min, unsigned int max);
 
 int main(void) {
 
-    const char correctID[80] = "Josh";
-    const char correctPassword[80] = "Pizza2020";
+    struct RideShare rideShare;
 
-    char testString[80] = "3.14159";
+    setupRideShare(&rideShare, 1, 100);
 
-    double input = 0.0;
-
-    bool validScan = scanDouble(testString, &input);
-
-    printf("%f", input);
-
-    bool validLogin = loginAdmin(correctID, correctPassword, 3);
+    /*
+    bool validLogin = loginAdmin(&CORRECT_ID, &CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS);
 
     if (validLogin == true) {
         puts("Successful Login");
@@ -34,7 +40,20 @@ int main(void) {
     if (validLogin == false) {
         puts("Failed Login");
     }
+    */
 }
+
+struct RideShare {
+
+    unsigned int minMiles;
+    unsigned int maxMiles;
+    double baseFare;
+    double costPerMinute;
+	double costPerMile;
+	double minFlatRate;
+    double totalMiles;
+    char companyName[STRING_LENGTH];
+};
 
 bool scanDouble (const char *buffer, double *output) {
 
@@ -66,8 +85,8 @@ bool loginAdmin (const char *correctID, const char *correctPassword, unsigned in
 
     unsigned int attempts = 1;
     bool validLogin = false;
-    char enteredID[80];
-    char enteredPass[80];
+    char enteredID[STRING_LENGTH];
+    char enteredPass[STRING_LENGTH];
 
     while (attempts <= maxAttempts && !validLogin) {
 
@@ -110,4 +129,25 @@ void fgetsRemoveNewLine (char *str, unsigned int maxSize) {
 
         str[strLength - 1] = '\0';
     }
+}
+
+void setupRideShare(struct RideShare *rideSharePtr, unsigned int min, unsigned int max) {
+
+    char buffer[STRING_LENGTH];
+
+    puts("Input base fare");
+    rideSharePtr -> baseFare = scanDouble(min, max);
+
+    puts("Input cost per minte");
+    rideSharePtr -> costPerMinute = scanDouble(min, max);
+
+    puts("Input cost per mile");
+    rideSharePtr -> costPerMile = scanDouble(min, max);
+
+    puts("Input minimum flat rate");
+    rideSharePtr -> minFlatRate = scanDouble(min, max);
+
+    rideSharePtr -> totalMiles = 0.0;
+
+    fgetsRemoveNewLine(rideSharePtr -> companyName, max);
 }
