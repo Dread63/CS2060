@@ -1,3 +1,0 @@
-C:\Dev\CS2060\Douglas_ITER02.c:156:10: warning: unused variable 'buffer' [clang-diagnostic-unused-variable]
-  156 |     char buffer[STRING_LENGTH];
-      |          ^~~~~~

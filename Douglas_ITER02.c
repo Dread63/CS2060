@@ -11,6 +11,8 @@
 #define SURVEY_CATEGORIES 3
 #define MIN_DOLLARS 0.1
 #define MAX_DOLLARS 50.0
+#define MIN_RAND_MINUTES_FACTOR 1.2
+#define MAX_RAND_MINUTES_FACTOR 1.5
 
 // LOGIN AND SENTINEL VALUES
 #define CORRECT_ID "id1"
@@ -26,6 +28,8 @@ bool scanDouble(const char *buffer, double *output);
 bool loginAdmin (const char *correctID, const char *correctPassword, unsigned int maxAttempts);
 void fgetsRemoveNewLine (char *str, unsigned int maxSize);
 void setupRideShare(struct RideShare *rideSharePtr, const double min, const double max);
+void displayRideShare(const struct RideShare *rideSharePtr);
+void displayRideShareRatings(size_t surveyCount, const unsigned int surveys[SURVEY_RIDER_ROWS][SURVEY_CATEGORIES]);
 
 struct RideShare {
 
@@ -35,22 +39,32 @@ struct RideShare {
     double minFlatRate;
     double totalMiles;
     char companyName[STRING_LENGTH];
+    unsigned int rideShareRatings[SURVEY_RIDER_ROWS][SURVEY_CATEGORIES];
 };
 
 int main(void) {
 
     struct RideShare rideShare;
-
-    setupRideShare(&rideShare, MIN_DOLLARS, MAX_DOLLARS);
+    unsigned int riderCount = 1;
 
     bool validLogin = loginAdmin(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS);
+    bool endRideShare = false;
 
+    // ADMIN MODE
     if (validLogin == true) {
-        puts("Successful Login");
+
+        setupRideShare(&rideShare, MIN_DOLLARS, MAX_DOLLARS);
+        displayRideShare(&rideShare);
+
+        puts("Exiting Admin Mode\n");
+
+        printf("%s%s%s\n", "Welcome to ", rideShare.companyName, " We can only provide services for rides from 1 to 100 miles");
+
+        displayRideShareRatings(riderCount, rideShare.rideShareRatings);
     }
 
-    if (validLogin == false) {
-        puts("Failed Login");
+    else {
+        puts("Exiting Rideshare\n");
     }
 }
 
@@ -70,17 +84,20 @@ bool scanDouble (const char *buffer, double *output) {
     }
 
     else if (errno == ERANGE) {
-        puts("Invalid Input: VALUE IS OUT OF RANGE OF A DOUBLE");
+        puts("Invalid Input: VALUE IS OUT OF RANGE OF A DOUBLE\n");
     }
 
     else {
-        puts("Invlaid input");
+        puts("Invlaid Input\n");
     }
 
     return isValid;
 }
 
 bool loginAdmin (const char *correctID, const char *correctPassword, unsigned int maxAttempts) {
+
+    puts("ADMIN LOGIN\n");
+    puts("-----------\n");
 
     unsigned int attempts = 1;
     bool validLogin = false;
@@ -93,7 +110,7 @@ bool loginAdmin (const char *correctID, const char *correctPassword, unsigned in
 
         fgetsRemoveNewLine(enteredID, 80);
 
-        puts("\nEnter passcode followed by the enter key");
+        puts("\nEnter your passcode followed by the enter key");
 
         fgetsRemoveNewLine(enteredPass, 80);
 
@@ -153,24 +170,63 @@ double getValidDouble(const double min, const double max) {
 
 void setupRideShare(struct RideShare *rideSharePtr, const double min, const double max) {
 
-    char buffer[STRING_LENGTH];
-
     puts("Input base fare");
     rideSharePtr->baseFare = getValidDouble(min, max);
-    //fgetsRemoveNewLine(buffer, sizeof(buffer));
-    //while (!scanDouble(buffer, &rideSharePtr->baseFare));
 
     puts("Input cost per minute");
-    //fgetsRemoveNewLine(buffer, sizeof(buffer));
-    //while (!scanDouble(buffer, &rideSharePtr->costPerMinute));
+    rideSharePtr->costPerMinute = getValidDouble(min, max);
 
     puts("Input cost per mile");
-    //fgetsRemoveNewLine(buffer, sizeof(buffer));
-    //while (!scanDouble(buffer, &rideSharePtr->costPerMile));
+    rideSharePtr->costPerMile = getValidDouble(min, max);
     
     puts("Input minimum flat rate");
-    //fgetsRemoveNewLine(buffer, sizeof(buffer));
-    //while (!scanDouble(buffer, &rideSharePtr->minFlatRate));
+    rideSharePtr->minFlatRate = getValidDouble(min, max);
 
     rideSharePtr->totalMiles = 0.0;
+
+    puts("Input company name");
+    fgetsRemoveNewLine(rideSharePtr->companyName, sizeof(rideSharePtr->companyName));
 }
+
+void displayRideShare(const struct RideShare *rideSharePtr) {
+
+    printf("%s\n", rideSharePtr->companyName);
+    puts("---------------------------------\n");
+
+    printf("%s%f\n", "baseFare = $", rideSharePtr->baseFare);
+
+    printf("%s%f\n", "costPerMinute = $", rideSharePtr->costPerMinute);
+
+    printf("%s%f\n", "costPerMile = $", rideSharePtr->costPerMile);
+
+    printf("%s%f\n", "minFlatRate = $", rideSharePtr->minFlatRate);
+}
+
+void displayRideShareRatings(size_t surveyCount, const unsigned int surveys[SURVEY_RIDER_ROWS][SURVEY_CATEGORIES]) {
+
+    if (surveyCount == 0) {
+        puts("There are no ratings\n");
+    }
+
+    else {
+
+        for (size_t i = 0; i < SURVEY_CATEGORIES; i++) {
+            printf("%-10s", surveyCategories[i]);
+        }
+
+        puts("\n");
+
+        for (size_t i = 0; i < surveyCount; i++) {
+            printf("%s%d%s", "Survey ", i + 1, ":");
+            
+            for (size_t z = 0; z < SURVEY_CATEGORIES; z++) {
+                printf("%-10d", surveys[i][z]);
+            }
+
+            puts("\n");
+        }
+    }
+}
+
+
+
