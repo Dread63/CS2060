@@ -13,6 +13,8 @@
 #define MAX_DOLLARS 50.0
 #define MIN_RAND_MINUTES_FACTOR 1.2
 #define MAX_RAND_MINUTES_FACTOR 1.5
+#define MIN_MILES 1.0
+#define MAX_MILES 100.0
 
 // LOGIN AND SENTINEL VALUES
 #define CORRECT_ID "id1"
@@ -30,6 +32,8 @@ void fgetsRemoveNewLine (char *str, unsigned int maxSize);
 void setupRideShare(struct RideShare *rideSharePtr, const double min, const double max);
 void displayRideShare(const struct RideShare *rideSharePtr);
 void displayRideShareRatings(size_t surveyCount, const unsigned int surveys[SURVEY_RIDER_ROWS][SURVEY_CATEGORIES]);
+char getYesNo();
+void riderMode(struct RideShare* rideShare);
 
 struct RideShare {
 
@@ -45,10 +49,8 @@ struct RideShare {
 int main(void) {
 
     struct RideShare rideShare;
-    unsigned int riderCount = 1;
 
     bool validLogin = loginAdmin(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS);
-    bool endRideShare = false;
 
     // ADMIN MODE
     if (validLogin == true) {
@@ -58,9 +60,7 @@ int main(void) {
 
         puts("Exiting Admin Mode\n");
 
-        printf("%s%s%s\n", "Welcome to ", rideShare.companyName, " We can only provide services for rides from 1 to 100 miles");
-
-        displayRideShareRatings(riderCount, rideShare.rideShareRatings);
+        riderMode(&rideShare);
     }
 
     else {
@@ -108,11 +108,11 @@ bool loginAdmin (const char *correctID, const char *correctPassword, unsigned in
 
         puts("\nEnter user login ID followed by the enter key");
 
-        fgetsRemoveNewLine(enteredID, 80);
+        fgetsRemoveNewLine(enteredID, sizeof(enteredID));
 
         puts("\nEnter your passcode followed by the enter key");
 
-        fgetsRemoveNewLine(enteredPass, 80);
+        fgetsRemoveNewLine(enteredPass, sizeof(enteredID));
 
         if (strcmp(enteredID, correctID) == 0) {
 
@@ -217,7 +217,7 @@ void displayRideShareRatings(size_t surveyCount, const unsigned int surveys[SURV
         puts("\n");
 
         for (size_t i = 0; i < surveyCount; i++) {
-            printf("%s%d%s", "Survey ", i + 1, ":");
+            printf("%s%zu%s", "Survey ", i + 1, ":");
             
             for (size_t z = 0; z < SURVEY_CATEGORIES; z++) {
                 printf("%-10d", surveys[i][z]);
@@ -226,6 +226,101 @@ void displayRideShareRatings(size_t surveyCount, const unsigned int surveys[SURV
             puts("\n");
         }
     }
+}
+
+char getYesNo() {
+
+    char buffer[STRING_LENGTH];
+
+    puts("Do you want to request a ride share? Input y/Y or n/N");
+
+    fgetsRemoveNewLine(buffer, sizeof(buffer));
+
+    while (strcmp(buffer, "y") != 0 && strcmp(buffer, "n") != 0 &&
+        strcmp(buffer, "Y") != 0 && strcmp(buffer, "N") != 0) {
+
+        puts("Invlaid input try again");
+        fgetsRemoveNewLine(buffer, sizeof(buffer));
+    }
+
+    return buffer[0];
+}
+
+int estimatedTimeOfArrival(double miles, double min, double max) {
+
+    double maxMinutes = miles * max;
+    double minMinutes = miles * min;
+    int randomMinutes = 0;
+
+    if (maxMinutes > minMinutes) {
+
+        srand(time(0));
+        randomMinutes = (rand() % (int)(maxMinutes - minMinutes + 1)) + minMinutes;
+    }
+
+    else {
+        printf("%s", "ERROR: MIN MINUTES CANNOT BE GREATER THAN MAX MINUTES");
+    }
+
+    return randomMinutes;
+}
+
+double calculateFare(const struct RideShare *rideSharePtr, unsigned int minutes, double miles) {
+
+    double totalFare = 0.0;
+
+    double calcuatedFare = rideSharePtr->baseFare + (rideSharePtr->costPerMinute * minutes) + (rideSharePtr->costPerMile * miles);
+
+    // Ensuring the base rate is always charged regardless of length of trip
+    if (calcuatedFare < rideSharePtr->minFlatRate) {
+        totalFare = rideSharePtr->minFlatRate;
+    }
+
+    else {
+        totalFare = calcuatedFare;
+    }
+
+    return totalFare;
+}
+
+
+void riderMode(struct RideShare *rideShare) {
+
+    unsigned int riderCount = 0;
+    bool loginStatus = false;
+
+    do {
+        
+        printf("%s%s%s\n", "Welcome to ", rideShare->companyName, " We can only provide services for rides from 1 to 100 miles");
+
+        displayRideShareRatings(riderCount, rideShare->rideShareRatings);
+
+        char wantsToRide = getYesNo();
+        
+        if (wantsToRide == 'y' || wantsToRide == 'Y') {
+
+            puts("Input the amount of miles your trip requires\n");
+
+            double miles = getValidDouble(MIN_MILES, MAX_MILES);
+
+            if (miles == SENTINAL_NEG1) {
+
+                loginStatus = loginAdmin(CORRECT_ID, CORRECT_PASSCODE, LOGIN_MAX_ATTEMPTS);
+            }
+
+            else {
+
+                unsigned int minutes = estimatedTimeOfArrival(miles, MIN_RAND_MINUTES_FACTOR, MAX_RAND_MINUTES_FACTOR);
+                printf("%s%d%s\n", "Estimated Time of Arrival: ", minutes, " Minutes");
+
+                double fare = calculateFare(rideShare, minutes, miles);
+                printf("%s%.2f\n", "Total Fare: ", fare);
+            }
+        }
+    }
+
+    while (loginStatus == false);
+
 }
 
 
