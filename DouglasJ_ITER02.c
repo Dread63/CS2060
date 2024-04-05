@@ -382,17 +382,18 @@ void riderMode(struct RideShare *rideShare) {
 
                 if (wantsToRate == 'y' || wantsToRate == 'Y') {
 
-                    rideShare->totalMinutes += minutes;
-                    rideShare->totalFares += fare;
-                    rideShare->totalMiles += miles;
-                    rideShare->riderCount++;
-
                     getRating(rideShare->rideShareRatings, &rideShare->surveyCount, SURVEY_CATEGORIES, MIN_SURVEY_RATING, MAX_SURVEY_RATING);
                 }
 
                 else {
                     puts("Thanks for riding with us!");
                 }
+
+                // Add current riders values to total values
+                rideShare->totalMinutes += minutes;
+                rideShare->totalFares += fare;
+                rideShare->totalMiles += miles;
+                rideShare->riderCount++;
             }
         }
 
