@@ -1,0 +1,3 @@
+Queue     19        140.70    
+Dynamic   23        118.20    
+Static    45        140.00    

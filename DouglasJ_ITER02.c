@@ -41,7 +41,7 @@ void calculateCategoryAverages(const unsigned int rideshareSurvey[][SURVEY_CATEG
 void displayRideShareSummary(const struct RideShare* rideSharePtr, double categoryAverages[SURVEY_CATEGORIES]);
 
 // Contains all rideshare data
-struct RideShare {
+typedef struct RideShare {
 
     double baseFare;
     double costPerMinute;
@@ -55,7 +55,7 @@ struct RideShare {
     unsigned int totalMinutes;
     double totalFares;
     double categoryAverages[SURVEY_CATEGORIES];
-};
+} RideshareStruct; // Typedef name shouldn't be the same as the struct name
 
 int main(void) {
 
