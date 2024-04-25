@@ -58,12 +58,15 @@ char getYesNo();
 void printRideShares(RideShare* head);
 void riderMode(RideShare* rideShare);
 void displayRideShareRatings(const RideShare* head);
-void displayRideShare(const RideShare* head);
+void displayRideShare(const RideShare* rideSharePtr);
+void displayAllRideShares(const RideShare* head);
 void strToLowerCase(char* str);
 int estimatedTimeOfArrival(double miles, double min, double max);
 double calculateFare(const RideShare* rideSharePtr, unsigned int minutes, double miles);
 void getRating(unsigned int survey[][SURVEY_CATEGORIES], unsigned int* surveyCount, size_t totalCategories, int min, int max);
 RideShare* matchRideShares(RideShare* head, char* name);
+void calculateAllCategoryAverages(RideShare* head);
+void displayAllRideShareSummaries(RideShare* head);
 
 int main(void) {
 
@@ -86,7 +89,7 @@ int main(void) {
         } while (wantsToContinue == 'y' || wantsToContinue == 'Y');
         
 
-        displayRideShare(head);
+        displayAllRideShares(head);
 
         printRideShares(head);
 
@@ -95,8 +98,8 @@ int main(void) {
         riderMode(head);
 
         // If admin re-logs in, display averages and day summary
-        // calculateCategoryAverages(rideShare.rideShareRatings, rideShare.surveyCount, rideShare.categoryAverages);
-        // displayRideShareSummary(&rideShare, rideShare.categoryAverages);
+        calculateAllCategoryAverages(head);
+        displayAllRideShareSummaries(head);
     }
 
     else {
@@ -321,11 +324,14 @@ RideShare* matchRideShares(RideShare* head, char* name) {
 
     while (currentPtr != NULL) {
 
-        char *lowercaseRideshareName = currentPtr->companyName;
-        strToLowerCase(lowercaseRideshareName);
+        char lowerCaseRideshareName[STRING_LENGTH];
+        strcpy(lowerCaseRideshareName, currentPtr->companyName);
+
+        // char *lowercaseRideshareName = currentPtr->companyName;
+        strToLowerCase(lowerCaseRideshareName);
         strToLowerCase(name);
 
-        if (strcmp(lowercaseRideshareName, name) == 0) {
+        if (strcmp(lowerCaseRideshareName, name) == 0) {
 
             // Since the input matches the name, return the current rideshare
             correctPtr = currentPtr;
@@ -342,7 +348,6 @@ RideShare* matchRideShares(RideShare* head, char* name) {
 void riderMode(RideShare* rideShare) {
 
     bool loginStatus = false;
-
 
     do {
 
@@ -393,7 +398,7 @@ void riderMode(RideShare* rideShare) {
 
                 if (wantsToRate == 'y' || wantsToRate == 'Y') {
 
-                    getRating(rideShare->rideShareRatings, &rideShare->surveyCount, SURVEY_CATEGORIES, MIN_SURVEY_RATING, MAX_SURVEY_RATING);
+                    getRating(selectedRideShare->rideShareRatings, &selectedRideShare->surveyCount, SURVEY_CATEGORIES, MIN_SURVEY_RATING, MAX_SURVEY_RATING);
                 }
 
                 else {
@@ -401,10 +406,10 @@ void riderMode(RideShare* rideShare) {
                 }
 
                 // Add current riders values to total values
-                rideShare->totalMinutes += minutes;
-                rideShare->totalFares += fare;
-                rideShare->totalMiles += miles;
-                rideShare->riderCount++;
+                selectedRideShare->totalMinutes += minutes;
+                selectedRideShare->totalFares += fare;
+                selectedRideShare->totalMiles += miles;
+                selectedRideShare->riderCount++;
             }
         }
 
@@ -417,7 +422,6 @@ void riderMode(RideShare* rideShare) {
 }
 
 void displayRideShareRatings(const RideShare *head) {
-
 
     RideShare* currentPtr = head;
 
@@ -453,7 +457,6 @@ void displayRideShareRatings(const RideShare *head) {
         }
 
         currentPtr = currentPtr->nextPtr;
-   
     }
 }
 
@@ -471,25 +474,30 @@ void strToLowerCase(char* str) {
 }
 
 // Displayed summary of enetered values by admin
-void displayRideShare(const RideShare* head) {
+void displayAllRideShares(const RideShare* head) {
 
     RideShare* currentRideShare = head;
 
     while (currentRideShare != NULL) {
        
-        printf("\n%s\n", currentRideShare->companyName);
-        puts("---------------------------------\n");
-
-        printf("%s%.2f\n", "baseFare = $", currentRideShare->baseFare);
-
-        printf("%s%.2f\n", "costPerMinute = $", currentRideShare->costPerMinute);
-
-        printf("%s%.2f\n", "costPerMile = $", currentRideShare->costPerMile);
-
-        printf("%s%.2f\n", "minFlatRate = $", currentRideShare->minFlatRate);
+        displayRideShare(currentRideShare);
 
         currentRideShare = currentRideShare->nextPtr;
     }
+}
+
+void displayRideShare(const RideShare* rideSharePtr) {
+
+    printf("\n%s\n", rideSharePtr->companyName);
+    puts("---------------------------------\n");
+
+    printf("%s%.2f\n", "baseFare = $", rideSharePtr->baseFare);
+
+    printf("%s%.2f\n", "costPerMinute = $", rideSharePtr->costPerMinute);
+
+    printf("%s%.2f\n", "costPerMile = $", rideSharePtr->costPerMile);
+
+    printf("%s%.2f\n", "minFlatRate = $", rideSharePtr->minFlatRate);
 }
 
 // Calculate estimated travel time based off miles and randomly generated scalar
@@ -563,6 +571,19 @@ void displayRideShareSummary(const RideShare* rideSharePtr, double categoryAvera
     for (size_t i = 0; i < SURVEY_CATEGORIES; i++) {
         printf("%-20.2f", categoryAverages[i]);
     }
+
+    puts("");
+}
+
+void displayAllRideShareSummaries(RideShare* head) {
+
+    RideShare* currentRideShare = head;
+
+    while (currentRideShare != NULL) {
+
+        displayRideShareSummary(currentRideShare, currentRideShare->categoryAverages);
+        currentRideShare = currentRideShare->nextPtr;
+    }
 }
 
 void calculateCategoryAverages(const unsigned int rideshareSurvey[][SURVEY_CATEGORIES], unsigned int surveyCount, double categoryAverages[SURVEY_CATEGORIES]) {
@@ -583,5 +604,16 @@ void calculateCategoryAverages(const unsigned int rideshareSurvey[][SURVEY_CATEG
 
         categoryAverages[i] /= surveyCount;
     }
+}
 
+void calculateAllCategoryAverages(RideShare* head) {
+
+    RideShare* currentRideShare = head;
+
+    while (currentRideShare != NULL) {
+
+        calculateCategoryAverages(currentRideShare->rideShareRatings, currentRideShare->surveyCount, currentRideShare->categoryAverages);
+
+        currentRideShare = currentRideShare->nextPtr;
+    }
 }

@@ -256,7 +256,6 @@ void displayRideShareRatings(unsigned int* surveyCount, const unsigned int surve
 
     printf("%s%s%s\n\n", "RideShare Organization ", companyName, " Ratings");
 
-
     // Check if no surveys have been entered
     if (*surveyCount == 0) {
         puts("There are no ratings\n");
