@@ -617,3 +617,33 @@ void calculateAllCategoryAverages(RideShare* head) {
         currentRideShare = currentRideShare->nextPtr;
     }
 }
+
+void writeSummariesToFile(RideShare* head) {
+
+    RideShare* currentRideShare = head;
+
+    while (currentRideShare != NULL) {
+
+        char companyName[STRING_LENGTH];
+
+        strcpy(companyName, currentRideShare->companyName);
+
+        for (int i = 0; companyName[i] != '\0'; i++) {
+
+            if (companyName[i] == ' ') {
+
+                companyName[i] = '_';
+            }
+        }
+
+        char fileName[STRING_LENGTH];
+
+        sprintf(fileName, "%s.txt", companyName);
+
+        FILE* summaryFile = fopen(fileName, "W");
+
+        
+    }
+
+    
+}
