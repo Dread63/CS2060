@@ -1,0 +1,7 @@
+uber Summary Report:
+Riders    Number of Miles     Number of Mintes    Ride Fare Amount    
+1         50.00               65                  107.45              
+
+Category Rating Averages:
+
+Safety              Cleanliness         Comfort             5.00                5.00                5.00                

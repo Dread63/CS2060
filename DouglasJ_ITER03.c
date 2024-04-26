@@ -25,11 +25,13 @@
 #define LOGIN_MAX_ATTEMPTS 3
 #define SENTINAL_NEG1 -1
 
+#define FOLDER_PATH "C:/Dev/CS2060/"
+
 const char* surveyCategories[SURVEY_CATEGORIES] = { "Safety", "Cleanliness", "Comfort" };
 
 struct RideShare;
 
-typedef struct rideShare {
+typedef struct RideShare {
 
     double baseFare;
     double costPerMinute;
@@ -67,7 +69,8 @@ void getRating(unsigned int survey[][SURVEY_CATEGORIES], unsigned int* surveyCou
 RideShare* matchRideShares(RideShare* head, char* name);
 void calculateAllCategoryAverages(RideShare* head);
 void displayAllRideShareSummaries(RideShare* head);
-void writeSummariesToFile(RideShare* head);
+void writeSummariesToFile(RideShare* head, const char* folderPath);
+void freeRideShares(RideShare* head);
 
 int main(void) {
 
@@ -101,12 +104,14 @@ int main(void) {
         // If admin re-logs in, display averages and day summary
         calculateAllCategoryAverages(head);
         displayAllRideShareSummaries(head);
-        writeSummariesToFile(head);
+        writeSummariesToFile(head, FOLDER_PATH);
     }
 
     else {
         puts("Exiting Rideshare\n");
     }
+
+    freeRideShares(head);
 }
 
 void insertRideShare(RideShare** headPtr) {
@@ -123,7 +128,7 @@ void insertRideShare(RideShare** headPtr) {
         while (currentPtr != NULL && strcmp(currentPtr->companyName, newRideSharePtr->companyName) <= 0) {
 
             previousPtr = currentPtr;
-            currentPtr = currentPtr->nextPtr;
+            currentPtr = (currentPtr->nextPtr);
         }
         
         if (previousPtr == NULL) {
@@ -620,7 +625,7 @@ void calculateAllCategoryAverages(RideShare* head) {
     }
 }
 
-void writeSummariesToFile(RideShare* head) {
+void writeSummariesToFile(RideShare* head, const char* folderPath) {
 
     RideShare* currentRideShare = head;
 
@@ -638,11 +643,11 @@ void writeSummariesToFile(RideShare* head) {
             }
         }
 
-        char fileName[STRING_LENGTH];
+        char filePath[STRING_LENGTH];
 
-        sprintf(fileName, "%s.txt", companyName);
+        sprintf(filePath, "%s%s.txt", folderPath, companyName);
 
-        FILE* summaryFile = fopen(fileName, "w");
+        FILE* summaryFile = fopen(filePath, "w");
 
         if (summaryFile != NULL) {
             
@@ -668,5 +673,17 @@ void writeSummariesToFile(RideShare* head) {
         }
 
         currentRideShare = currentRideShare->nextPtr;
+    }
+}
+
+void freeRideShares(RideShare* head) {
+
+    RideShare *currentRideShare = head;
+
+    while (currentRideShare != NULL) {
+
+        RideShare* temp = currentRideShare;
+        currentRideShare = currentRideShare->nextPtr;
+        free(temp);
     }
 }
