@@ -67,6 +67,7 @@ void getRating(unsigned int survey[][SURVEY_CATEGORIES], unsigned int* surveyCou
 RideShare* matchRideShares(RideShare* head, char* name);
 void calculateAllCategoryAverages(RideShare* head);
 void displayAllRideShareSummaries(RideShare* head);
+void writeSummariesToFile(RideShare* head);
 
 int main(void) {
 
@@ -100,6 +101,7 @@ int main(void) {
         // If admin re-logs in, display averages and day summary
         calculateAllCategoryAverages(head);
         displayAllRideShareSummaries(head);
+        writeSummariesToFile(head);
     }
 
     else {
@@ -423,7 +425,7 @@ void riderMode(RideShare* rideShare) {
 
 void displayRideShareRatings(const RideShare *head) {
 
-    RideShare* currentPtr = head;
+    const RideShare* currentPtr = head;
 
     while (currentPtr != NULL) {
 
@@ -476,7 +478,7 @@ void strToLowerCase(char* str) {
 // Displayed summary of enetered values by admin
 void displayAllRideShares(const RideShare* head) {
 
-    RideShare* currentRideShare = head;
+    const RideShare* currentRideShare = head;
 
     while (currentRideShare != NULL) {
        
@@ -640,10 +642,31 @@ void writeSummariesToFile(RideShare* head) {
 
         sprintf(fileName, "%s.txt", companyName);
 
-        FILE* summaryFile = fopen(fileName, "W");
+        FILE* summaryFile = fopen(fileName, "w");
 
-        
+        if (summaryFile != NULL) {
+            
+            fprintf(summaryFile, "%s%s\n", currentRideShare->companyName, " Summary Report:");
+
+            fprintf(summaryFile, "%-10s%-20s%-20s%-20s\n", "Riders", "Number of Miles", "Number of Mintes", "Ride Fare Amount");
+            fprintf(summaryFile, "%-10d%-20.2f%-20u%-20.2f\n", currentRideShare->riderCount, currentRideShare->totalMiles, currentRideShare->totalMinutes, currentRideShare->totalFares);
+
+            fprintf(summaryFile, "\n%s", "Category Rating Averages:\n\n");
+
+            for (size_t i = 0; i < SURVEY_CATEGORIES; i++) {
+                fprintf(summaryFile, "%-20s", surveyCategories[i]);
+            }
+
+            fputs("", summaryFile);
+
+            for (size_t i = 0; i < SURVEY_CATEGORIES; i++) {
+                fprintf(summaryFile, "%-20.2f", currentRideShare->categoryAverages[i]);
+            }
+
+            fputs("", summaryFile);
+            fclose(summaryFile);
+        }
+
+        currentRideShare = currentRideShare->nextPtr;
     }
-
-    
 }
